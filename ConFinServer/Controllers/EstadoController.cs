@@ -1,5 +1,7 @@
-﻿using ConFinServer.Model;
+﻿using ConFinServer.Data;
+using ConFinServer.Model;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConFinServer.Controllers
@@ -8,62 +10,94 @@ namespace ConFinServer.Controllers
     [ApiController]
     public class EstadoController : ControllerBase
     {
+        private readonly AppDbContext _context;
 
-        private static List<Estado> lista = new List<Estado>();
+        public EstadoController(AppDbContext context )
+        {
+            _context = context;
+        }
+
+        //private static List<Estado> lista = new List<Estado>();
 
         [HttpGet]
-        public string GetEstado()
+        public IActionResult GetEstado()
         {
-            var valor = "teste";
-            //f10 passa linha pr linha f9 pula tudo
-            valor = valor + " - BSN";
-            return valor;
+            try
+            {
+                var lista = _context.Estado.OrderBy(e => e.Nome).ToList();
+                //select * from estado order by nome
+                return Ok(lista);
+            }
+            catch (Exception ex) 
+            { 
+                return BadRequest("Erro ao consultar estado. "+ex.Message)
+            }
+            
         }
 
-        [HttpGet("Get2")]
-        public string GetEstado2()
-        {
-            var valor = "teste";
-            //f10 passa linha pr linha f9 pula tudo
-            valor = valor + " - BSN 2";
-            return valor;
-        }
+        //[HttpGet("Get2")]
+        //public string GetEstado2()
+        //{
+        //    var valor = "teste";
+        //    //f10 passa linha pr linha f9 pula tudo
+        //    valor = valor + " - BSN 2";
+        //    return valor;
+        //}
 
-        [HttpGet("Lista")]
-        public List<Estado> GetLista()
-        {
-            return lista;
-        }
+        //[HttpGet("Lista")]
+        //public List<Estado> GetLista()
+        //{
+        //    return lista;
+        //}
 
         [HttpPost]
-        public string PostEstado(Estado estado)
+        public IActionResult PostEstado(Estado estado)
         {
-            lista.Add(estado);
-            return "Estado cadastrado com sucesso!";
+            try
+            {
+                _context.Estado.Add(estado);
+                _context.SaveChanges();
+            }catch(Exception ex)
+            {
+                return BadRequest("Erro ao inserir o Estado. " + ex.Message);
+            }
+            return Ok("Estado registrado com sucesso");
         }
         [HttpPut]
-        public string PutEstado(Estado estado)
+        public IActionResult PutEstado(Estado estado)
         {
-            var estadoExiste = lista.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
-            if (estadoExiste != null)
+            var estadoExiste = _context.Estado.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
+
+            try
             {
-                estadoExiste.Sigla = estado.Sigla;
-                estadoExiste.Nome = estado.Nome;
+                var estadoExiste = _context.Estado.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
+                if (estadoExiste != null)
+                {
+                    estadoExiste.Nome = estado.Nome;
+                    _context.Estado.Update(estadoExiste);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return "Estado não encontrado!";
+                }
+                return "Estado Alterado com sucesso!";
             }
-            else
+            catch (Exception ex)
             {
-                return "Estado não encontrado!";
+                return NotFound("Estado não encontrado. " + ex.Message); 
             }
-            return "Estado Alterado com sucesso!";
+            return Ok("Estado alterado com sucesso!")
         }
 
         [HttpDelete]
         public string DeleteEstado([FromQuery]string sigla) //força a a buscar pelos objetos da requisição
         {
-            var estadoExiste = lista.Where(l => l.Sigla == sigla).FirstOrDefault();
+            var estadoExiste = _context.Estado.Where(l => l.Sigla == sigla).FirstOrDefault();
             if (estadoExiste != null)
             {
-                lista.Remove(estadoExiste);
+                _context.Estado.Remove(estadoExiste);
+                _context.SaveChanges();
             }
             else
             {
@@ -75,10 +109,11 @@ namespace ConFinServer.Controllers
         [HttpDelete("Objeto")]
         public string DeleteEstado([FromBody]Estado estado) //frombody força a buscar pelo corpo da requisição
         {
-            var estadoExiste = lista.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
+            var estadoExiste = _context.Estado.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
             if (estadoExiste != null)
             {
-                lista.Remove(estadoExiste);
+                _context.Estado.Remove(estadoExiste);
+                _context.SaveChanges();
             }
             else
             {
@@ -90,10 +125,11 @@ namespace ConFinServer.Controllers
         [HttpDelete("Header")]
         public string DeleteEstado3([FromHeader] string sigla) //força a buscar pelo cabeçario da requisição
         {
-            var estadoExiste = lista.Where(l => l.Sigla == sigla).FirstOrDefault();
+            var estadoExiste = _context.Estado.Where(l => l.Sigla == sigla).FirstOrDefault();
             if (estadoExiste != null)
             {
-                lista.Remove(estadoExiste);
+                _context.Estado.Remove(estadoExiste);
+                _context.SaveChanges();
             }
             else
             {
@@ -105,10 +141,11 @@ namespace ConFinServer.Controllers
         [HttpDelete("{sigla}")]
         public string DeleteEstado4([FromRoute] string sigla) //força a buscar pela rota da requisição
         {
-            var estadoExiste = lista.Where(l => l.Sigla == sigla).FirstOrDefault();
+            var estadoExiste = _context.Estado.Where(l => l.Sigla == sigla).FirstOrDefault();
             if (estadoExiste != null)
             {
-                lista.Remove(estadoExiste);
+                _context.Estado.Remove(estadoExiste);
+                _context.SaveChanges();
             }
             else
             {

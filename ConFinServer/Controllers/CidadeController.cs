@@ -17,7 +17,7 @@ namespace ConFinServer.Controllers
         }
 
         [HttpPost]
-        public string PostCidade(Cidade cidade)
+        public string PostCidade([FromBody] Cidade cidade)
         {
             lista.Add(cidade);
             return "Cidade cadastrada com sucesso!";
