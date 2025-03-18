@@ -3,6 +3,7 @@ using ConFinServer.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConFinServer.Controllers
 {
@@ -24,7 +25,7 @@ namespace ConFinServer.Controllers
         {
             try
             {
-                var lista = _context.Cidade.OrderBy(e => e.Nome).ToList();
+                var lista = _context.Cidade.Include(c => c.Estado).OrderBy(c => c.Nome).ToList();
                 //select * from estado order by nome
                 return Ok(lista);
             }
@@ -35,20 +36,6 @@ namespace ConFinServer.Controllers
 
         }
 
-        //[HttpGet("Get2")]
-        //public string GetEstado2()
-        //{
-        //    var valor = "teste";
-        //    //f10 passa linha pr linha f9 pula tudo
-        //    valor = valor + " - BSN 2";
-        //    return valor;
-        //}
-
-        //[HttpGet("Lista")]
-        //public List<Estado> GetLista()
-        //{
-        //    return lista;
-        //}
 
         [HttpPost]
         public IActionResult PostCidade(Cidade cidade)
@@ -64,6 +51,7 @@ namespace ConFinServer.Controllers
             }
             return Ok("Cidade registrada com sucesso");
         }
+
         [HttpPut]
         public IActionResult PutCidade(Cidade cidade)
         {
@@ -75,6 +63,7 @@ namespace ConFinServer.Controllers
                 if (cidadeExiste != null)
                 {
                     cidadeExiste.Nome = cidade.Nome;
+                    cidadeExiste.EstadoSigla = cidade.EstadoSigla;
                     _context.Cidade.Update(cidadeExiste);
                     _context.SaveChanges();
                 }
