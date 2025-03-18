@@ -1,5 +1,7 @@
-﻿using ConFinServer.Model;
+﻿using ConFinServer.Data;
+using ConFinServer.Model;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ConFinServer.Controllers
@@ -8,45 +10,94 @@ namespace ConFinServer.Controllers
     [ApiController]
     public class CidadeController : ControllerBase
     {
-        private static List<Cidade> lista = new List<Cidade>();
+        private readonly AppDbContext _context;
 
-        [HttpGet("Lista")]
-        public List<Cidade> GetLista()
+        public CidadeController(AppDbContext context)
         {
-            return lista;
+            _context = context;
         }
+
+        //private static List<Estado> lista = new List<Estado>();
+
+        [HttpGet]
+        public IActionResult GetEstado()
+        {
+            try
+            {
+                var lista = _context.Cidade.OrderBy(e => e.Nome).ToList();
+                //select * from estado order by nome
+                return Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao consultar cidade. " + ex.Message);
+            }
+
+        }
+
+        //[HttpGet("Get2")]
+        //public string GetEstado2()
+        //{
+        //    var valor = "teste";
+        //    //f10 passa linha pr linha f9 pula tudo
+        //    valor = valor + " - BSN 2";
+        //    return valor;
+        //}
+
+        //[HttpGet("Lista")]
+        //public List<Estado> GetLista()
+        //{
+        //    return lista;
+        //}
 
         [HttpPost]
-        public string PostCidade([FromBody] Cidade cidade)
+        public IActionResult PostCidade(Cidade cidade)
         {
-            lista.Add(cidade);
-            return "Cidade cadastrada com sucesso!";
+            try
+            {
+                _context.Cidade.Add(cidade);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao inserir a cidade. " + ex.Message);
+            }
+            return Ok("Cidade registrada com sucesso");
         }
-
         [HttpPut]
-        public string PutCidade(Cidade cidade)
+        public IActionResult PutCidade(Cidade cidade)
         {
-            var cidadeExiste = lista.Where(l => l.Codigo == cidade.Codigo).FirstOrDefault();
-            if (cidadeExiste != null)
+            
+
+            try
             {
-                cidadeExiste.Codigo = cidade.Codigo;
-                cidadeExiste.Estado = cidade.Estado;
-                cidadeExiste.Nome = cidade.Nome;
+                var cidadeExiste = _context.Cidade.Where(l => l.Codigo == cidade.Codigo).FirstOrDefault();
+                if (cidadeExiste != null)
+                {
+                    cidadeExiste.Nome = cidade.Nome;
+                    _context.Cidade.Update(cidadeExiste);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return NotFound("Cidade não encontrada!");
+                }
+                return Ok("Cidade Alterada com sucesso!");
             }
-            else
+            catch (Exception ex)
             {
-                return "Cidade não encontrada!";
+                return BadRequest("Cidade não encontrada. " + ex.Message);
             }
-            return "Cidade Alterada com sucesso!";
         }
 
-        [HttpDelete("Objeto")]
-        public string DeleteCidade([FromBody] Cidade cidade) //frombody força a buscar pelo corpo da requisição
+        [HttpDelete]
+        public string DeleteCidade([FromQuery] int codigo) //força a a buscar pelos objetos da requisição
         {
-            var cidadeExiste = lista.Where(l => l.Codigo == cidade.Codigo).FirstOrDefault();
+            var cidadeExiste = _context.Cidade.Where(l => l.Codigo == codigo).FirstOrDefault();
             if (cidadeExiste != null)
             {
-                lista.Remove(cidadeExiste);
+                _context.Cidade.Remove(cidadeExiste);
+                _context.SaveChanges();
             }
             else
             {

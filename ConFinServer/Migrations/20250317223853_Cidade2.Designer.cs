@@ -2,6 +2,7 @@
 using ConFinServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConFinServer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250317223853_Cidade2")]
+    partial class Cidade2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,10 +32,10 @@ namespace ConFinServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Codigo"));
 
-                    b.Property<string>("EstadoSigla")
+                    b.Property<string>("Estado")
                         .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("character varying(2)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -40,8 +43,6 @@ namespace ConFinServer.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Codigo");
-
-                    b.HasIndex("EstadoSigla");
 
                     b.ToTable("Cidade");
                 });
@@ -60,17 +61,6 @@ namespace ConFinServer.Migrations
                     b.HasKey("Sigla");
 
                     b.ToTable("Estado");
-                });
-
-            modelBuilder.Entity("ConFinServer.Model.Cidade", b =>
-                {
-                    b.HasOne("ConFinServer.Model.Estado", "Estado")
-                        .WithMany()
-                        .HasForeignKey("EstadoSigla")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Estado");
                 });
 #pragma warning restore 612, 618
         }

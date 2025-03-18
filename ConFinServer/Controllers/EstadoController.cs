@@ -29,8 +29,8 @@ namespace ConFinServer.Controllers
                 return Ok(lista);
             }
             catch (Exception ex) 
-            { 
-                return BadRequest("Erro ao consultar estado. "+ex.Message)
+            {
+                return BadRequest("Erro ao consultar estado. " + ex.Message);
             }
             
         }
@@ -66,7 +66,6 @@ namespace ConFinServer.Controllers
         [HttpPut]
         public IActionResult PutEstado(Estado estado)
         {
-            var estadoExiste = _context.Estado.Where(l => l.Sigla == estado.Sigla).FirstOrDefault();
 
             try
             {
@@ -79,15 +78,14 @@ namespace ConFinServer.Controllers
                 }
                 else
                 {
-                    return "Estado não encontrado!";
+                    return NotFound("Estado não encontrado!");
                 }
-                return "Estado Alterado com sucesso!";
+                return Ok("Estado Alterado com sucesso!");
             }
             catch (Exception ex)
             {
                 return NotFound("Estado não encontrado. " + ex.Message); 
             }
-            return Ok("Estado alterado com sucesso!")
         }
 
         [HttpDelete]
