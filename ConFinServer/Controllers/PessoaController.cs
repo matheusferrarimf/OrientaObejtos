@@ -25,7 +25,7 @@ namespace ConFinServer.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pessoa>>> GetPessoa()
         {
-            return await _context.Pessoa.ToListAsync();
+            return await _context.Pessoa.Include(p => p.Cidade).Include(p => p.Cidade.Estado ).ToListAsync();
         }
 
         // GET: api/Pessoa/5
