@@ -24,6 +24,18 @@ namespace ConFinServer
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            //Configuração de CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+            //Fim
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -32,6 +44,9 @@ namespace ConFinServer
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            //Uso do CORS
+            app.UseCors("CorsPolicy");
 
             app.UseHttpsRedirection();
 
