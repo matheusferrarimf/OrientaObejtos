@@ -35,6 +35,25 @@ namespace ConFinServer.Controllers
             
         }
 
+        [HttpGet("{sigla}")]
+        public IActionResult GetEstadoSigla([FromRoute] string sigla)
+        {
+            try
+            {
+                var estadoExiste = _context.Estado.Where(e => e.Sigla == sigla).FirstOrDefault();
+                if(estadoExiste != null)
+                {
+                    return Ok(estadoExiste);
+                }
+                return NotFound("Estado não encontrado.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Erro ao consultar estado. " + ex.Message);
+            }
+
+        }
+
         //[HttpGet("Get2")]
         //public string GetEstado2()
         //{
